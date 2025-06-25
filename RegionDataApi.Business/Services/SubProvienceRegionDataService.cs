@@ -4,29 +4,25 @@ using RegionDataApi.Business.DTOs;
 using RegionDataApi.Data.Entities;
 using RegionDataApi.Data.Repositories;
 
+
 namespace RegionDataApi.Business.Services
 {
-    public class ProvienceRegionDataService : IProvienceRegionDataService
+    public class SubProvienceRegionDataService : ISubProvienceRegionDataService
     {
         private readonly IProvienceRegionDataRepository _repository;
         private readonly IHttpClientFactory _httpClientFactory;
-
-        public ProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory)
+        public SubProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory)
         {
             _repository = repository;
             _httpClientFactory = httpClientFactory;
         }
 
-        /// <summary>
-        /// Dış servis çağrısını HttpClientFactory ile yapar, XML'yi JSON'a dönüştürür.
-        /// </summary>
-        private async Task<JObject> GetProvienceReportsAsync(int startYear, int endYear, int regionCode)
+
+        private async Task<JObject> GetSubProvienceReportsAsync(int year, int regionCode)
         {
-            var yearsParam = $"{startYear}:{endYear}";
             var url = $"http://internal.oag.icisleri.gov.tr/Services/Consumer/Tuik/" +
-                      $"MerkeziDagitimSistemiServisi/getNUTSReports?" +
-                      $"languageCode=TR&indicatorId=ADNKS-GK137473-O29001&" +
-                      $"years={yearsParam}&regionTypeCode=3:3&regionCode={regionCode}";
+                $"MerkeziDagitimSistemiServisi/getSubProvienceReports?languageCode=TR&" +
+                $"indicatorId=ADNKS-GK137473-O29001&year={year}&provienceCode={regionCode}";
 
             var client = _httpClientFactory.CreateClient();
             var xmlText = await client.GetStringAsync(url);
@@ -39,10 +35,10 @@ namespace RegionDataApi.Business.Services
             return JObject.Parse(jsonText);
         }
 
-        public async Task SyncProvienceRegionDataAsync(int startYear, int endYear, int regionCode)
+        public async Task SyncSubProvienceRegionDataAsync(int year, int regionCode)
         {
-         
-            var reportsObj = await GetProvienceReportsAsync(startYear, endYear, regionCode);
+
+            var reportsObj = await GetSubProvienceReportsAsync(year, regionCode);
 
 
             var reports = reportsObj["reports"]["report"]
@@ -76,8 +72,7 @@ namespace RegionDataApi.Business.Services
                 });
             }
         }
-
-        public async Task SaveProvienceRegionDataAsync(RegionDataDto dto)
+        public async Task SaveSubProvienceRegionDataAsync(RegionDataDto dto)
         {
             if (dto == null)
             {
@@ -87,6 +82,7 @@ namespace RegionDataApi.Business.Services
             var entity = new Tbl_RegionData
             {
                 RegionCode = dto.RegionCode,
+                RegionTypeCode = dto.RegionTypeCode,
                 DataValue = dto.DataValue,
                 RequestDate = dto.RequestDate,
                 IndicatorId = dto.IndicatorId,
@@ -97,7 +93,7 @@ namespace RegionDataApi.Business.Services
 
             await _repository.AddProvienceRegionDataAsync(entity);
         }
-        public async Task<RegionDataDto> GetLatestProvienceByRegionCodeAsync(int regionCode)
+        public async Task<RegionDataDto> GetLatestSubProvienceByRegionCodeAsync(int regionCode)
         {
             var entity = await _repository.GetLatestProvienceByRegionCodeAsync(regionCode);
             if (entity == null)
@@ -115,11 +111,8 @@ namespace RegionDataApi.Business.Services
                 Month = entity.Month
             };
         }
-
-
-
-
-
-
     }
 }
+
+
+

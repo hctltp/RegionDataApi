@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using RegionDataApi.Business.DependencyInjection;
-using RegionDataApi.Data;
+﻿using RegionDataApi.Business.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegionDataApi.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RegionDataApi.Data.Repositories
 {
@@ -17,15 +13,15 @@ namespace RegionDataApi.Data.Repositories
             _context = context;
         }
 
-        public async Task AddProvienceRegionDataAsync(Tbl_ProvienceRegionData data)
+        public async Task AddProvienceRegionDataAsync(Tbl_RegionData data)
         {
-            _context.Tbl_ProvienceRegionData.Add(data);
+            _context.Tbl_RegionData.Add(data);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Tbl_ProvienceRegionData?> GetLatestProvienceByRegionCodeAsync(int regionCode)
+        public async Task<Tbl_RegionData?> GetLatestProvienceByRegionCodeAsync(int regionCode)
         {
-            return await _context.Tbl_ProvienceRegionData
+            return await _context.Tbl_RegionData
                 .Where(r => r.RegionCode == regionCode)
                 .OrderByDescending(r => r.RequestDate)
                 .FirstOrDefaultAsync();

@@ -3,12 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RegionDataApi.Business.Services;
 using RegionDataApi.Data;
-using RegionDataApi.Data.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RegionDataApi.Business.DependencyInjection
 {
@@ -23,6 +18,7 @@ namespace RegionDataApi.Business.DependencyInjection
 
             services.AddScoped<IProvienceRegionDataRepository, ProvienceRegionDataRepository>();
             services.AddScoped<IProvienceRegionDataService, ProvienceRegionDataService>();
+            services.AddScoped<ISubProvienceRegionDataService, SubProvienceRegionDataService>();
 
             return services;
         }

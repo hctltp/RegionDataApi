@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RegionDataApi.Business.DTOs;
 using RegionDataApi.Business.Services;
 
 namespace RegionDataApi.Controllers
