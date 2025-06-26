@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RegionDataApi.Business.Services;
 using RegionDataApi.Data;
+using RegionDataApi.Data.Repositories;
 
 
 namespace RegionDataApi.Business.DependencyInjection
