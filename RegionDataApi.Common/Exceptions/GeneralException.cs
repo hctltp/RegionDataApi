@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RegionDataApi.Business
+namespace RegionDataApi.Common.Exceptions
 {
-    public class TuikException : Exception
+    public class GeneralException : Exception
     {
         public int Status { get; }
 
-        public TuikException(string message, int status) : base(message)
+        public GeneralException(string message, int status) : base(message)
         {
             Status = status;
         }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RegionDataApi.Business.DTOs;
+using RegionDataApi.Common.DTOs;
+using RegionDataApi.Common.Exceptions;
 using RegionDataApi.Data.Entities;
 using RegionDataApi.Data.Repositories;
 
@@ -43,6 +44,14 @@ namespace RegionDataApi.Business.Services
 
             var reportsObj = await GetSubProvienceReportsAsync(year, regionCode);
 
+            var status = reportsObj["reports"]?["status"]?.Value<int>() ?? 0;
+
+            if (status == -1)
+            {
+                var description = reportsObj["reports"]?["description"]?.ToString() ?? "Bilinmeyen hata";
+                throw new TuikException($"TUİK servis hatası: {description}", 422);
+            }
+
 
             var reports = reportsObj["reports"]["report"]
                               .Children()
@@ -75,27 +84,7 @@ namespace RegionDataApi.Business.Services
                 });
             }
         }
-        public async Task SaveSubProvienceRegionDataAsync(RegionDataDto dto)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "Data cannot be null");
-            }
-
-            var entity = new Tbl_RegionData
-            {
-                RegionCode = dto.RegionCode,
-                RegionTypeCode = dto.RegionTypeCode,
-                DataValue = dto.DataValue,
-                RequestDate = dto.RequestDate,
-                IndicatorId = dto.IndicatorId,
-                Year = dto.Year,
-                Term = dto.Term,
-                Month = dto.Month
-            };
-
-            await _repository.AddProvienceRegionDataAsync(entity);
-        }
+        
         public async Task<RegionDataDto> GetLatestSubProvienceByRegionCodeAsync(int regionCode)
         {
             var entity = await _repository.GetLatestProvienceByRegionCodeAsync(regionCode);

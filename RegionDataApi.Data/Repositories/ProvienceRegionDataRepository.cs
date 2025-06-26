@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using RegionDataApi.Common.Exceptions;
 using RegionDataApi.Data.Entities;
 
 
@@ -15,8 +17,27 @@ namespace RegionDataApi.Data.Repositories
 
         public async Task AddProvienceRegionDataAsync(Tbl_RegionData data)
         {
-            _context.Tbl_RegionData.Add(data);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Tbl_RegionData.Add(data);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Veritabanı save/update hatası (unique constraint, foreign key vs.)
+                throw new DatabaseException("Veritabanı save/update hatası", 500);
+            }
+            catch (SqlException ex)
+            {
+                // SQL Server özel hataları (timeout, bağlantı hatası vs.)
+                throw new DatabaseException("Veritabanı genel hata", 500);
+            }
+            catch (Exception ex)
+            {
+                // Diğer tüm hatalar
+                throw new DatabaseException("Veritabanı diğer hatalar", 500);
+            }
+
         }
 
         public async Task<Tbl_RegionData?> GetLatestProvienceByRegionCodeAsync(int regionCode)

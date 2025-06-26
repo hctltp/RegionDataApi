@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RegionDataApi.Common\RegionDataApi.Common.csproj" />
     <ProjectReference Include="..\RegionDataApi.Data\RegionDataApi.Data.csproj" />
   </ItemGroup>
 

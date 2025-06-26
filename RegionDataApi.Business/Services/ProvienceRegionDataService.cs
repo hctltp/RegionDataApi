@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RegionDataApi.Business.DTOs;
-using RegionDataApi.Business;
 using RegionDataApi.Data.Entities;
 using RegionDataApi.Data.Repositories;
+using RegionDataApi.Common.Exceptions;
+using RegionDataApi.Common.DTOs;
 
 namespace RegionDataApi.Business.Services
 {
@@ -90,26 +90,6 @@ namespace RegionDataApi.Business.Services
             }
         }
 
-        public async Task SaveProvienceRegionDataAsync(RegionDataDto dto)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto), "Data cannot be null");
-            }
-
-            var entity = new Tbl_RegionData
-            {
-                RegionCode = dto.RegionCode,
-                DataValue = dto.DataValue,
-                RequestDate = dto.RequestDate,
-                IndicatorId = dto.IndicatorId,
-                Year = dto.Year,
-                Term = dto.Term,
-                Month = dto.Month
-            };
-
-            await _repository.AddProvienceRegionDataAsync(entity);
-        }
         public async Task<RegionDataDto> GetLatestProvienceByRegionCodeAsync(int regionCode)
         {
             var entity = await _repository.GetLatestProvienceByRegionCodeAsync(regionCode);
@@ -128,11 +108,5 @@ namespace RegionDataApi.Business.Services
                 Month = entity.Month
             };
         }
-
-
-
-
-
-
     }
 }

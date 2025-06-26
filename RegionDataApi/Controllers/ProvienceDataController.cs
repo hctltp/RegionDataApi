@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RegionDataApi.Business;
 using RegionDataApi.Business.Services;
-using System.Net;
+using RegionDataApi.Common.Exceptions;
 
 namespace RegionDataApi.Controllers
 {
@@ -21,7 +20,7 @@ namespace RegionDataApi.Controllers
             try
             {
                 await _provienceRegionDataService.SyncProvienceRegionDataAsync(startYear, endYear, regionCode);
-                return Ok("Province data sync completed.");
+                return Ok("Senkronizasyon Başarılı!");
             }
             catch (TuikException ex)
             {
@@ -35,6 +34,10 @@ namespace RegionDataApi.Controllers
             catch (InvalidOperationException ex)
             {
                 return NotFound(new { error = ex.Message });
+            }
+            catch (DatabaseException ex)
+            {
+                return StatusCode(500, new { error = "Veritabanı hatası oluştu.", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -61,6 +64,40 @@ namespace RegionDataApi.Controllers
                 return NotFound();
             }
             return Ok(data);
+        }
+
+        [HttpGet("sync-provience-auto")]
+        public async Task<IActionResult> SyncProvienceAuto()
+        {
+            try
+            {
+                int startYear = DateTime.UtcNow.Year - 1;
+                int endYear = DateTime.UtcNow.Year;
+                int regionCode = 0;
+                await _provienceRegionDataService.SyncProvienceRegionDataAsync(startYear, endYear, regionCode);
+                return Ok("Senkronizasyon Başarılı!");
+            }
+            catch (TuikException ex)
+            {
+                if (ex.Status == 422)
+                {
+                    return UnprocessableEntity(new { error = ex.Message, StatusCode = ex.Status });
+                }
+
+                return BadRequest(new { error = ex.Message, StatusCode = ex.Status });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (DatabaseException ex)
+            {
+                return StatusCode(500, new { error = "Veritabanı hatası oluştu.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Sunucu hatası oluştu.", details = ex.Message });
+            }
         }
 
     }

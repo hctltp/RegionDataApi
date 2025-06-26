@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using RegionDataApi.Business.Services;
 using RegionDataApi.Data;
 using RegionDataApi.Data.Repositories;
-using RegionDataApi.Business.DTOs;        // TuikServiceOptions için
 
 namespace RegionDataApi.Business.DependencyInjection
 {
