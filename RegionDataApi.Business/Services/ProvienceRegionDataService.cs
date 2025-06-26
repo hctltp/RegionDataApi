@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RegionDataApi.Business.DTOs;
+using RegionDataApi.Business;
 using RegionDataApi.Data.Entities;
 using RegionDataApi.Data.Repositories;
 
@@ -10,11 +11,13 @@ namespace RegionDataApi.Business.Services
     {
         private readonly IProvienceRegionDataRepository _repository;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly TuikUrlBuilder _urlBuilder;
 
-        public ProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory)
+        public ProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory, TuikUrlBuilder urlBuilder)
         {
             _repository = repository;
             _httpClientFactory = httpClientFactory;
+            _urlBuilder = urlBuilder;
         }
 
         /// <summary>
@@ -22,11 +25,13 @@ namespace RegionDataApi.Business.Services
         /// </summary>
         private async Task<JObject> GetProvienceReportsAsync(int startYear, int endYear, int regionCode)
         {
-            var yearsParam = $"{startYear}:{endYear}";
-            var url = $"http://internal.oag.icisleri.gov.tr/Services/Consumer/Tuik/" +
-                      $"MerkeziDagitimSistemiServisi/getNUTSReports?" +
-                      $"languageCode=TR&indicatorId=ADNKS-GK137473-O29001&" +
-                      $"years={yearsParam}&regionTypeCode=3:3&regionCode={regionCode}";
+            //var yearsParam = $"{startYear}:{endYear}";
+            //var url = $"http://internal.oag.icisleri.gov.tr/Services/Consumer/Tuik/" +
+            //          $"MerkeziDagitimSistemiServisi/getNUTSReports?" +
+            //          $"languageCode=TR&indicatorId=ADNKS-GK137473-O29001&" +
+            //          $"years={yearsParam}&regionTypeCode=3:3&regionCode={regionCode}";
+
+            var url = _urlBuilder.BuildProvienceUrl(startYear, endYear, regionCode);
 
             var client = _httpClientFactory.CreateClient();
             var xmlText = await client.GetStringAsync(url);
@@ -43,6 +48,14 @@ namespace RegionDataApi.Business.Services
         {
          
             var reportsObj = await GetProvienceReportsAsync(startYear, endYear, regionCode);
+
+            var status = reportsObj["reports"]?["status"]?.Value<int>() ?? 0;
+
+            if (status == -1) 
+            {
+                var description = reportsObj["reports"]?["description"]?.ToString() ?? "Bilinmeyen hata";
+                throw new TuikException($"TUİK servis hatası: {description}", 422);
+            }
 
 
             var reports = reportsObj["reports"]["report"]

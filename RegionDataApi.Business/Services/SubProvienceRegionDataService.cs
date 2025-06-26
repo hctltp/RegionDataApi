@@ -11,18 +11,21 @@ namespace RegionDataApi.Business.Services
     {
         private readonly IProvienceRegionDataRepository _repository;
         private readonly IHttpClientFactory _httpClientFactory;
-        public SubProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory)
+        private readonly TuikUrlBuilder _urlBuilder;
+        public SubProvienceRegionDataService(IProvienceRegionDataRepository repository, IHttpClientFactory httpClientFactory, TuikUrlBuilder urlBuilder)
         {
             _repository = repository;
             _httpClientFactory = httpClientFactory;
+            _urlBuilder = urlBuilder;
         }
 
 
         private async Task<JObject> GetSubProvienceReportsAsync(int year, int regionCode)
         {
-            var url = $"http://internal.oag.icisleri.gov.tr/Services/Consumer/Tuik/" +
-                $"MerkeziDagitimSistemiServisi/getSubProvienceReports?languageCode=TR&" +
-                $"indicatorId=ADNKS-GK137473-O29001&year={year}&provienceCode={regionCode}";
+            //var url = $"http://internal.oag.icisleri.gov.tr/Services/Consumer/Tuik/" +
+            //    $"MerkeziDagitimSistemiServisi/getSubProvienceReports?languageCode=TR&" +
+            //    $"indicatorId=ADNKS-GK137473-O29001&year={year}&provienceCode={regionCode}";
+            var url = _urlBuilder.BuildSubProvienceUrl(year, regionCode);
 
             var client = _httpClientFactory.CreateClient();
             var xmlText = await client.GetStringAsync(url);

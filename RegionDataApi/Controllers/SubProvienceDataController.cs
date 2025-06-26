@@ -14,7 +14,7 @@ namespace RegionDataApi.Controllers
             _subProvienceRegionDataService = subProvienceRegionDataService;
         }
 
-        [HttpPost("sync-provience/{year}/{regionCode}")]
+        [HttpGet("sync-provience/{year}/{regionCode}")]
         public async Task<IActionResult> SyncSubProvience(int year, int regionCode)
         {
             await _subProvienceRegionDataService.SyncSubProvienceRegionDataAsync(year, regionCode);

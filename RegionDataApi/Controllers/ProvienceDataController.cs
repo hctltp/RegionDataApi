@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RegionDataApi.Business;
 using RegionDataApi.Business.Services;
+using System.Net;
 
 namespace RegionDataApi.Controllers
 {
@@ -13,11 +15,31 @@ namespace RegionDataApi.Controllers
             _provienceRegionDataService = provienceRegionDataService;
         }
 
-        [HttpPost("sync-provience/{startYear}/{endYear}/{regionCode}")]
+        [HttpGet("sync-provience/{startYear}/{endYear}/{regionCode}")]
         public async Task<IActionResult> SyncProvience(int startYear, int endYear, int regionCode)
         {
-            await _provienceRegionDataService.SyncProvienceRegionDataAsync(startYear, endYear, regionCode);
-            return Ok("Provience data sync completed.");
+            try
+            {
+                await _provienceRegionDataService.SyncProvienceRegionDataAsync(startYear, endYear, regionCode);
+                return Ok("Province data sync completed.");
+            }
+            catch (TuikException ex)
+            {
+                if(ex.Status == 422)
+                {
+                    return UnprocessableEntity(new { error = ex.Message, StatusCode = ex.Status });
+                }
+                
+                return BadRequest(new { error = ex.Message, StatusCode = ex.Status });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Sunucu hatası oluştu.", details = ex.Message });
+            }
         }
 
         //[HttpPost("save")]
